@@ -8,6 +8,8 @@ public class TabletController : MonoBehaviour
     {
         if (tablet == null)
             Debug.LogWarning("Link to tablet not set in scripts!");
+        else
+            tablet.SetActive(true);
     }
 
     private void Update()
