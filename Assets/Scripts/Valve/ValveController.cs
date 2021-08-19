@@ -9,7 +9,7 @@ public class ValveController : MonoBehaviour
     private int direction = 0;
 
     private Quaternion previousRotate;
-    [SerializeField]private float totalDeegres = 0; //Make serialize for debug
+    [SerializeField]private float totalDeegres = 0;
 
     private void Start()
     {
@@ -22,6 +22,18 @@ public class ValveController : MonoBehaviour
         RotateObject(transform);
     }
 
+    private void OnMouseUp()
+    {
+        direction = 0;
+    }
+
+    private void OnMouseDown()
+    {
+        Vector3 dir = Input.mousePosition - mainCamera.WorldToScreenPoint(transform.position);
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        Quaternion nextStep = Quaternion.AngleAxis(-angle, Vector3.up);
+        previousRotate = nextStep;
+    }
     private void RotateObject(Transform toRotate)
     {
         if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
@@ -31,18 +43,19 @@ public class ValveController : MonoBehaviour
             Quaternion nextStep = Quaternion.AngleAxis(-angle, Vector3.up);
             toRotate.localRotation = nextStep;
             float a = Quaternion.Angle(previousRotate, transform.rotation);
-            totalDeegres += a * CheckDirection();
+            direction = CheckDirection(nextStep);
+            totalDeegres += a * direction;
             if (!CheckLimitsAngles(toRotate)) return;
-            previousRotate = toRotate.localRotation;            
+            previousRotate = toRotate.localRotation;
         }
     }
 
-    private int CheckDirection()
+    private int CheckDirection(Quaternion q)
     {
-        if (previousRotate.eulerAngles.y > transform.rotation.eulerAngles.y)
-            return 1;
-        else if (previousRotate.eulerAngles.y < transform.rotation.eulerAngles.y)
+        if (q.y > previousRotate.y)
             return -1;
+        else if (q.y < previousRotate.y)
+            return 1;
         return 0;
     }
 
@@ -54,9 +67,9 @@ public class ValveController : MonoBehaviour
             toRotate.rotation = previousRotate;
             return false;
         }
-        else if (totalDeegres < 0)
+        else if (totalDeegres < rotationLimits.x)
         {
-            totalDeegres = 0;
+            totalDeegres = rotationLimits.x;
             toRotate.rotation = previousRotate;
             return false;
         }
