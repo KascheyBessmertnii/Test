@@ -10,11 +10,8 @@ public class TabletMover : MonoBehaviour
     [SerializeField] private GameObject horizontalScreen;
     [SerializeField] private GameObject verticalScreen;
 
-    private Vector3 position;
-
     private void Start()
     {
-        position = transform.position;
         RotateTablet(new Vector3(0f, 0f, 0f), true, vertical);
     }
 
@@ -37,6 +34,5 @@ public class TabletMover : MonoBehaviour
         tabletCamera.targetTexture = texture;
         verticalScreen.SetActive(vertical);
         horizontalScreen.SetActive(!vertical);
-        transform.position = position;
     }
 }
