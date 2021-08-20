@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class ValveController : MonoBehaviour
 {
+    [SerializeField] private TubeController controlTube;
     [SerializeField] private Vector2 rotationLimits = new Vector2(0, 720);
 
     private Camera mainCamera;
@@ -15,6 +16,8 @@ public class ValveController : MonoBehaviour
     {
         mainCamera = Camera.main;
         previousRotate = transform.rotation;
+
+        controlTube?.Initialize(rotationLimits.y);
     }
 
     private void OnMouseDrag()
@@ -47,6 +50,7 @@ public class ValveController : MonoBehaviour
             totalDeegres += a * direction;
             if (!CheckLimitsAngles(toRotate)) return;
             previousRotate = toRotate.localRotation;
+            controlTube.ChangeWaterPower(totalDeegres);
         }
     }
 
