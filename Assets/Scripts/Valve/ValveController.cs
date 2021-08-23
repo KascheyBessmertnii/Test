@@ -1,23 +1,23 @@
 using UnityEngine;
+using Utility;
 
 public class ValveController : MonoBehaviour
 {
-    [SerializeField] private TubeController controlTube;
+    [SerializeField] private ParticleSystem waterParticleSystem = default;
+    [Header("Valve settings")]
     [SerializeField] private Vector2 rotationLimits = new Vector2(0, 720);
 
     private Camera mainCamera;
 
-    private int direction = 0;
-
     private Quaternion previousRotate;
-    [SerializeField]private float totalDeegres = 0;
+    private float totalDeegres = 0;
 
     private void Start()
     {
         mainCamera = Camera.main;
         previousRotate = transform.rotation;
 
-        controlTube?.Initialize(rotationLimits.y);
+        WaterController.Initialize(waterParticleSystem,rotationLimits.y);
     }
 
     private void OnMouseDrag()
@@ -25,44 +25,51 @@ public class ValveController : MonoBehaviour
         RotateObject(transform);
     }
 
-    private void OnMouseUp()
-    {
-        direction = 0;
-    }
-
     private void OnMouseDown()
     {
-        Vector3 dir = Input.mousePosition - mainCamera.WorldToScreenPoint(transform.position);
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        Quaternion nextStep = Quaternion.AngleAxis(-angle, Vector3.up);
-        previousRotate = nextStep;
+        previousRotate = SetNewRotate();
     }
     private void RotateObject(Transform toRotate)
     {
-        if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
-        {
-            Vector3 dir = Input.mousePosition - mainCamera.WorldToScreenPoint(toRotate.position);
-            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-            Quaternion nextStep = Quaternion.AngleAxis(-angle, Vector3.up);
-            toRotate.localRotation = nextStep;
-            float a = Quaternion.Angle(previousRotate, transform.rotation);
-            direction = CheckDirection(nextStep);
-            totalDeegres += a * direction;
-            if (!CheckLimitsAngles(toRotate)) return;
-            previousRotate = toRotate.localRotation;
-            controlTube.ChangeWaterPower(totalDeegres);
-        }
+        toRotate.localRotation = SetNewRotate(); //Rotate object use mouse moving
+
+        SetTotalAngles(toRotate.localRotation);
+
+        if (!CheckLimitsAngles(toRotate)) return;
+
+        previousRotate = toRotate.localRotation;
+        WaterController.SetWaterParametersByValveAngle(waterParticleSystem,totalDeegres);
     }
 
-    private int CheckDirection(Quaternion q)
+    private Quaternion SetNewRotate()
     {
-        if (q.y > previousRotate.y)
-            return -1;
-        else if (q.y < previousRotate.y)
-            return 1;
-        return 0;
+        float angle = AngleAdditional.GetAngleToMouse(mainCamera, transform);
+
+        return Quaternion.AngleAxis(-angle, Vector3.up);
     }
 
+    /// <summary>
+    /// Set open valve angle
+    /// </summary>
+    /// <param name="q">Qauternion between old and new rotation</param>
+    private void SetTotalAngles(Quaternion q)
+    {
+        float rotateAngle = Quaternion.Angle(previousRotate, transform.rotation);
+
+        int direction = 0;
+        if (q.y > previousRotate.y)
+            direction = -1;
+        else if (q.y < previousRotate.y)
+            direction = 1;
+
+        totalDeegres += rotateAngle * direction;
+    }
+
+    /// <summary>
+    /// Check current valva angle, if they not between angle limits set valve rotation to previous angle
+    /// </summary>
+    /// <param name="toRotate">Object for rotate back if its need</param>
+    /// <returns></returns>
     private bool CheckLimitsAngles(Transform toRotate)
     {
         if (totalDeegres > rotationLimits.y)

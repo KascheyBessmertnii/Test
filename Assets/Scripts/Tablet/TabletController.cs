@@ -1,9 +1,7 @@
 using UnityEngine;
 
-public class TabletController : MonoBehaviour
+public class TabletController : TabletMover
 {
-    [SerializeField] private GameObject tablet;
-
     private void Start()
     {
         if (tablet == null)
@@ -25,15 +23,6 @@ public class TabletController : MonoBehaviour
         if (tablet != null)
         {
             tablet.SetActive(visibleState);
-            //Cursor.lockState = lockMode;
-            //Cursor.visible = visibleState;
         }
-    }
-    /// <summary>
-    /// Hide tablet using scene UI elements
-    /// </summary>
-    public void ButtonHideTablet()
-    {
-        UpdateTabletView(false, CursorLockMode.Locked);
     }
 }

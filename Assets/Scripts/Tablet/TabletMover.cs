@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class TabletMover : MonoBehaviour
 {
+    [SerializeField] protected GameObject tablet;
     [SerializeField] private Camera tabletCamera;
     [Header("Render textures")]
     [SerializeField] private RenderTexture horizontal;  
@@ -10,12 +11,12 @@ public class TabletMover : MonoBehaviour
     [SerializeField] private GameObject horizontalScreen;
     [SerializeField] private GameObject verticalScreen;
 
-    private void Start()
+    private void Awake()
     {
         RotateTablet(new Vector3(0f, 0f, 0f), true, vertical);
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         if(Input.GetKeyDown(KeyCode.Q))
         {
@@ -30,7 +31,7 @@ public class TabletMover : MonoBehaviour
 
     private void RotateTablet(Vector3 direction, bool vertical, RenderTexture texture)
     {
-        transform.localRotation = Quaternion.Euler(direction);
+        tablet.transform.localRotation = Quaternion.Euler(direction);
         tabletCamera.targetTexture = texture;
         verticalScreen.SetActive(vertical);
         horizontalScreen.SetActive(!vertical);

@@ -1,25 +1,29 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
 public class RBMover : MonoBehaviour, IMovable
 {
     [SerializeField] private float speed = 200f;
     private Rigidbody rb;
 
-    private void Start()
+    public void Init(Transform targetObj)
     {
-        TryGetComponent(out rb);
+        targetObj.TryGetComponent(out rb);
+        if (rb == null)
+            Debug.LogError("Moving script not initialized, object " + targetObj.name + " not have Rigidboy component!");
     }
 
     public void Move(Vector3 direction)
     {
-        Vector3 move = transform.right * direction.z + transform.forward * direction.x;
+        if (rb == null) return;
+
+        Vector3 move = rb.transform.right * direction.z + rb.transform.forward * direction.x;
 
         rb.velocity = move * speed * Time.deltaTime;
     }
 
     public void Stop()
     {
+        if (rb == null) return;
         rb.velocity = Vector3.zero;
     }
 }

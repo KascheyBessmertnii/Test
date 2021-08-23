@@ -2,5 +2,5 @@ using UnityEngine;
 
 public interface ILook
 {
-    void Look(Vector2 offset);
+    void Look(Rigidbody target, Vector2 offset);
 }

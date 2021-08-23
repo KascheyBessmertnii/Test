@@ -1,22 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
+    [SerializeField] private Transform moveObject = default;
+
     private IMovable move;
-    private ILook look;
+    private MouseLook mLook;
 
     private void Start()
     {
         TryGetComponent(out move);
-        TryGetComponent(out look);
 
         if (move == null)
             Debug.LogError(name + "object not have move script!");
+        else
+            move.Init(moveObject);
 
-        if (look == null)
-            Debug.LogError(name + " object not have look script!");
+        mLook = MouseLook.Instance;
     }
 
     private void Update()
@@ -42,14 +42,12 @@ public class CameraController : MonoBehaviour
 
     private void OnLook()
     {
-        if (look == null) return;
-
-        if(Input.GetMouseButton(1)) //Look only if right mouse button is pressed
+        if (Input.GetMouseButton(1)) //Look only if right mouse button is pressed
         {
             float x = Input.GetAxis("Mouse X");
             float y = Input.GetAxis("Mouse Y");
 
-            look.Look(new Vector2(x, y));
-        }           
+            mLook.Look(moveObject, new Vector2(x, y));
+        }
     }
 }
